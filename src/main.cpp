@@ -34,7 +34,7 @@ lemlib::ControllerSettings turn_settings //tune
 (
 	5.93, //kP - 5.8 - 5.93 
 	0, //kI
-	44.87, //kD - 41.92 - 42.46/42.5/43.9/44.87(small oscillate but APPROACH 4.9)
+	44.9, //kD - 41.92 - 42.46/42.5/43.9/44.87(small oscillate but APPROACH 44.9)
 	0, //windup range
 	0, //small error range, inches
 	0, //small error range timeout, milliseconds
@@ -74,12 +74,30 @@ void resetCascadeTask(void*)
 	resetCascade();
 }
 
+void ninety_test(){
+	chassis.setPose(0, 0, 0);
+    chassis.turnToHeading(90, 5000);
+}
 void turnPIDtest()
 {
- 	chassis.setPose(0, 0, 0);
-    chassis.turnToHeading(90, 1000);
-}
+	pros::delay(2500);
+	chassis.setPose(0, 0, 0);
+	pros::delay(2500);
+    chassis.turnToHeading(45, 5000);
+	pros::delay(2500);
+	chassis.turnToHeading(135, 5000);
+	pros::delay(2500);
+	chassis.turnToHeading(90, 5000);
+	pros::delay(2500);
+	chassis.turnToHeading(180,5000);
+	pros::delay(2500);
+	chassis.turnToHeading(0, 5000);
 
+} 
+void PIDtask(void*)
+{
+	turnPIDtest();
+}
 //FUNCTIONS FOR AUTON AND DRIVER 
 void initialize() 
 {
@@ -90,7 +108,7 @@ void competition_initialize() {} //runs after initialize, b4 auton. ends when ro
 //intended for comp-specific initialization routines, like an auton selector.
 void autonomous() //runs auton code. if disabled and restarted, the task will restart from the beginning, not resume.
 {
-	turnPIDtest();
+	ninety_test();
 }
 void opcontrol() ////runs driver code. if disabled and restarted, the task will restart from the beginning, not resume.
 //if no comp control: will run immediately after initialize. 
@@ -144,6 +162,11 @@ void opcontrol() ////runs driver code. if disabled and restarted, the task will 
 			claw.toggle();
 		}
 		//MACROS
+		if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+		{
+    		pros::Task PIDTask(PIDtask);
+
+		}
 		if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
 		{
     		if(!cascadeResetting)
