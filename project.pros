@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "4051V",
+    "project_name": "4051V_SKILLSAUTO",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -635,9 +635,9 @@
       }
     },
     "upload_options": {
-      "description": ".",
-      "slot": 1,
-      "icon": "pros"
+      "description": "3pinPARK",
+      "slot": 6,
+      "icon": "pizza"
     },
     "use_early_access": false
   }

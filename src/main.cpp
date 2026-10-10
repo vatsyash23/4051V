@@ -20,7 +20,7 @@ pros::Rotation vertodom(-3);
 pros::Rotation horizodom(2); //sign tune
 lemlib::TrackingWheel vert_tracking_wheel(&vertodom, 2, 0); //tune dimensions
 lemlib::TrackingWheel horiz_tracking_wheel(&horizodom, 2, 0);//tune dimensions 
-lemlib::OdomSensors odometry(&vert_tracking_wheel, nullptr, &horiz_tracking_wheel, nullptr, &inertial);
+lemlib::OdomSensors odometry(nullptr, nullptr, nullptr, nullptr, &inertial);
 
 
 lemlib::ControllerSettings straight_settings//tune
@@ -190,6 +190,21 @@ void twopin()
     chassis.moveToPoint(-46, 4, 1000);
     chassis.waitUntilDone(); 
 }
+void toggle()
+{
+    chassis.setPose(-61, 0, 270);
+    chassis.moveToPoint(-60, 0, 250, {.forwards=false, .minSpeed = 90});
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-64, 0, 750, {.minSpeed = 120});
+    chassis.waitUntilDone();
+    chassis.setPose(-63, 0, 270);
+    chassis.moveToPoint(-59, 0, 250, {.forwards=false, .minSpeed = 90});
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-64, 0, 500, {.minSpeed = 90});
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-59, 0, 250, {.forwards=false, .minSpeed = 90});
+    chassis.waitUntilDone();
+}
 void twopinright()
 {
     chassis.setPose(-61, 0, 270);
@@ -233,7 +248,7 @@ void threepin()
     chassis.moveToPoint(-64, 0, 1000, {.minSpeed = 127});
     chassis.waitUntilDone();
     chassis.setPose(-63, 0, 270);
-    chassis.moveToPoint(-46, 0, 1000, {.forwards=false});
+    chassis.moveToPoint(-46, 0, 875, {.forwards=false});
     wrist.extend();
     cascade.move_relative(1500, 600);
     chassis.turnToHeading(180, 1000);
@@ -247,13 +262,13 @@ void threepin()
     claw.extend(); 
     // chassis.setPose(-45, 17, 180);
     pros::delay(100);
-    chassis.moveToPoint(-46, 5, 1000);
+    chassis.moveToPoint(-46, -2, 1500);
     chassis.waitUntilDone(); 
-    chassis.turnToHeading(227, 1000); 
+    chassis.turnToHeading(227, 1250); 
     chassis.waitUntilDone();
-    chassis.moveToPoint(-34, 14, 750, {.forwards=false});
+    chassis.moveToPoint(-25, 17.5, 2000, {.forwards=false, .maxSpeed=60});
     chassis.waitUntilDone();    
-    chassis.moveToPoint(-30, 20, 1750, {.forwards=false, .maxSpeed = 45});
+    // chassis.moveToPoint(-30, 15, 1750, {.forwards=false, .maxSpeed = 45});
     chassis.waitUntilDone();
     claw.retract();
     cascade.move_relative(3000, 600);
@@ -266,8 +281,13 @@ void threepin()
     pros::delay(500);
     claw.extend();
     pros::delay(250);
-    chassis.moveToPoint(-46, 18, 1000);
-    chassis.waitUntilDone();  
+    chassis.moveToPoint(-40,30,1000);
+    chassis.waitUntilDone();
+    chassis.turnToPoint(0,0,1000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-9,9,2000, {.maxSpeed = 90});
+    // chassis.moveToPoint(-46, 18, 1000);
+    // chassis.waitUntilDone();  
     // chassis.waitUntilDone();
     // chassis.moveToPoint(-52, 21, 1000, {.forwards=false}); 
     // chassis.waitUntilDone();  
