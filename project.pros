@@ -635,7 +635,9 @@
       }
     },
     "upload_options": {
-      "description": "."
+      "description": ".",
+      "slot": 1,
+      "icon": "pros"
     },
     "use_early_access": false
   }
