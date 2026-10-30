@@ -235,12 +235,26 @@ void twopinright()
     chassis.moveToPoint(-46, -4, 1000);
     chassis.waitUntilDone(); 
 }
+void arushgay()
+{
+    chassis.setPose(0,0,0);
+    wrist.extend();
+    cascade.move_relative(1500, 600);
+    pros::delay(500);
+    chassis.moveToPose(0, -6, 0, 1000,{.forwards=false});
+    cascade.move_relative(-1800, 600);
+    chassis.waitUntilDone();
+    pros::delay(500);
+    chassis.moveToPose(0, 0, 0, 1000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(315, 1000);
+}
 void threepin()
 {
     chassis.setPose(-61, 0, 270);
     chassis.moveToPoint(-60, 0, 250, {.forwards=false, .minSpeed = 90});
     chassis.waitUntilDone();
-    chassis.moveToPoint(-64, 0, 750, {.minSpeed = 127});
+    chassis.moveToPoint(-64, 0, 500, {.minSpeed = 127});
     chassis.waitUntilDone();
     chassis.setPose(-63, 0, 270);
     chassis.moveToPoint(-59, 0, 250, {.forwards=false, .minSpeed = 90});
@@ -248,67 +262,35 @@ void threepin()
     chassis.moveToPoint(-64, 0, 1000, {.minSpeed = 127});
     chassis.waitUntilDone();
     chassis.setPose(-63, 0, 270);
-    chassis.moveToPoint(-46, 0, 875, {.forwards=false});
+    chassis.moveToPoint(-45, 0, 1250, {.forwards=false});
     wrist.extend();
-    cascade.move_relative(1500, 600);
-    chassis.turnToHeading(180, 1000);
+    cascade.move_relative(-1000, 600);
+    pros::delay(500);
+    chassis.turnToHeading(180, 3000);
     chassis.waitUntilDone();
-    chassis.moveToPoint(-46, 12, 625, {.forwards=false});
+    chassis.moveToPoint(-45, 16, 1750, {.forwards=false});
     chassis.waitUntilDone();
-    chassis.moveToPoint(-46, 18, 875, {.forwards=false, .maxSpeed = 90});
-    chassis.waitUntilDone();
-    cascade.move_relative(-2250, 600);
-    pros::delay(900);
-    claw.extend(); 
-    // chassis.setPose(-45, 17, 180);
-    pros::delay(100);
-    chassis.moveToPoint(-46, -2, 1500);
+    cascade.move_relative(1250, 600);
+    pros::delay(500);
+    chassis.moveToPoint(-45, -3, 1750);
+    claw.extend();
     chassis.waitUntilDone(); 
-    chassis.turnToHeading(227, 1250); 
+    chassis.turnToHeading(225, 1250); 
     chassis.waitUntilDone();
-    chassis.moveToPoint(-25, 17.5, 2000, {.forwards=false, .maxSpeed=60});
-    chassis.waitUntilDone();    
-    // chassis.moveToPoint(-30, 15, 1750, {.forwards=false, .maxSpeed = 45});
+    chassis.moveToPoint(-26, 16, 3000, {.forwards=false, .maxSpeed=60});
     chassis.waitUntilDone();
     claw.retract();
-    cascade.move_relative(3000, 600);
-    pros::delay(500); 
-    chassis.swingToHeading(18, lemlib::DriveSide::RIGHT, 1750, {.direction = lemlib::AngularDirection::CCW_COUNTERCLOCKWISE, .minSpeed=60});
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-49, 23, 1000, {.forwards=false});
-    chassis.waitUntilDone();
-    cascade.move_relative(-2100, 600);
-    pros::delay(500);
-    claw.extend();
     pros::delay(250);
-    chassis.moveToPoint(-40,30,1000);
+    cascade.move_relative(-2200, 600);
+    pros::delay(750);   
+    chassis.turnToHeading(135, 1000);
     chassis.waitUntilDone();
-    chassis.turnToPoint(0,0,1000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-9,9,2000, {.maxSpeed = 90});
-    // chassis.moveToPoint(-46, 18, 1000);
-    // chassis.waitUntilDone();  
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-52, 21, 1000, {.forwards=false}); 
-    // chassis.waitUntilDone();  
-    // pros::delay(250);
-    // chassis.turnToHeading(130, 750);
-    // chassis.waitUntilDone(); 
-    // chassis.moveToPoint(-62, 29, 1000, {.forwards=false, .maxSpeed = 60});   
-    // chassis.waitUntilDone();
-    // chassis.swingToHeading(90,lemlib::DriveSide::RIGHT, 1000, {.minSpeed=60});
-    // chassis.waitUntilDone();    
-    // claw.retract();
-    // cascade.move_relative(1800, 600);
-    // chassis.turnToHeading(180, 1000);
-    // chassis.waitUntilDone();   
-    // cascade.move_velocity(0);
-    master.print(0, 0, "%d,%d,%d", (int)std::round(chassis.getPose().x), (int)std::round(chassis.getPose().y), (int)std::round(chassis.getPose().theta));    // chassis.moveToPoint(-61, 20, 1000, {.forwards=false, .minSpeed =60});
-    // chassis.waitUntilDone();
-    // pros::delay(250);
-    // claw.retract();
-
-}
+    chassis.moveToPoint(-40, 24, 1000, {.forwards=false});
+    chassis.waitUntilDone();   
+    cascade.move_relative(1800, 450);
+    pros::delay(750);
+    claw.extend();
+ }
 void simpleguesscheckauton()
 {
 	chassis.setPose(0, 0, 0);
@@ -366,7 +348,7 @@ void opcontrol()
          // Arcade Drive
          int leftY = -master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
          int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-         dt_chassis.arcade(leftY, rightX, false, 0.5);
+         dt_chassis.arcade(leftY, rightX, false, 0.75);
 
     
         // master.print(0, 0, "Dist: %d mm  ", distance.get());
