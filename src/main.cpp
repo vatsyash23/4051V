@@ -1,27 +1,27 @@
-//INCLUDE FILES - ANY NECESSARY FILES FOR THE PROGRAM TO RUN
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 
-//VARIABLES 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::MotorGroup cascade ({16, -20}, pros::MotorGearset::blue); //sign tune
-pros::Motor intake(15, pros::MotorGearset::blue); //port tune
-pros::adi::Pneumatics wrist('A', false); //port tune
-pros::adi::Pneumatics claw('B', false); //port tune
-pros::Distance distance(10); //port tune
-pros::MotorGroup left_mg({12, 14}); //sign tune
-pros::MotorGroup right_mg({-5, -18}); //sign tune 
-pros::MotorGroup left_dt({-12, -14, -13}); //sign tune
-pros::MotorGroup right_dt({5, 18, 19}); //sign tune 
-lemlib::Drivetrain drivetrain (&right_mg, &left_mg, 11.25, lemlib::Omniwheel::NEW_275, 450, 2);
-lemlib::Drivetrain dt(&left_dt, &right_dt, 11.25, lemlib::Omniwheel::NEW_275, 450, 2);
-pros::Imu inertial(1); 
-pros::Rotation vertodom(-3); 	
-pros::Rotation horizodom(2); //sign tune
-lemlib::TrackingWheel vert_tracking_wheel(&vertodom, 2, 0); //tune dimensions
-lemlib::TrackingWheel horiz_tracking_wheel(&horizodom, 2, 0);//tune dimensions 
-lemlib::OdomSensors odometry(nullptr, nullptr, nullptr, nullptr, &inertial);
+pros::MotorGroup left_mg({1, 2}, pros::MotorGearset::blue);
+pros::MotorGroup right_mg({4, 5}, pros::MotorGearset::blue); 
+pros::MotorGroup left_dt({1, 2, 3}); 
+pros::MotorGroup right_dt({4, 5, 6});  
+pros::MotorGroup cascade ({7, 8}, pros::MotorGearset::green); 
+pros::MotorGroup toggle({9, 10}, pros::MotorGearset::rpm_200); 
+pros::Distance Xdistance(11);
+pros::Distance Ydistance(12);
+pros::Rotation cascadeRot(13);
+pros::Rotation vertodom(14); 	
+pros::Rotation horizodom(15); 
+pros::Imu inertial(16); 
+pros::adi::Pneumatics claw('A', false, false); 
+pros::adi::Pneumatics cleaner('B', false, false); 
 
+lemlib::TrackingWheel vert_tracking_wheel(&vertodom, 2, 0, 1);
+lemlib::TrackingWheel horiz_tracking_wheel(&horizodom, 2, 0, 1);
+lemlib::OdomSensors odometry(&vert_tracking_wheel, nullptr, &horiz_tracking_wheel, nullptr, &inertial);
+lemlib::Drivetrain drivetrain (&left_mg, &right_mg, 11.25, lemlib::Omniwheel::NEW_275, 450, 2);
+lemlib::Drivetrain dt(&left_dt, &right_dt, 11.25, lemlib::Omniwheel::NEW_275, 450, 2);
 
 lemlib::ControllerSettings straight_settings//tune
 (
@@ -65,40 +65,8 @@ lemlib::ExpoDriveCurve turn_curve //tune
 
 lemlib::Chassis chassis(drivetrain, straight_settings, turn_settings, odometry, &throttle_curve, &turn_curve); 
 lemlib::Chassis dt_chassis(dt, straight_settings, turn_settings, odometry, &throttle_curve, &turn_curve);
-//AUTON FUNCTION
+
 bool cascadeMacroActive = false;
-bool intakeMacroActive = false;
-void intakeMacro()
-{
-	int startTime2 = pros::millis();
-	wrist.extend();
-	intakeMacroActive = true;
-	cascade.move_velocity(-600);
-    while(true)
-    {
-        int cascadePos = distance.get();
-        // 1. Target Condition: Adjust <= or >= depending on physical mounting
-        if(cascadePos > 250) 
-        {
-            break;
-        }
-        // 2. Safety Timeout: Stop after 3 seconds no matter what
-        if(pros::millis() - startTime2 > 3000) 
-        {
-			// master.print(0, 0, "timeout");
-			break;
-		}	
-	}
-	cascade.move_velocity(0);
-	wrist.retract();
-	intakeMacroActive = false;   
-}
-
-void intakeMacroTask(void*)
-{
-    intakeMacro();
-}   
-
 void resetCascade()
 {
     cascadeMacroActive = true;
@@ -106,13 +74,11 @@ void resetCascade()
 	cascade.move_velocity(600);
     while(true)
     {
-        int cascadePos = distance.get();
-        // 1. Target Condition: Adjust <= or >= depending on physical mounting
+        int cascadePos = cascadeRot.();
         if(cascadePos <= 175) 
         {
             break;
         }
-        // 2. Safety Timeout: Stop after 3 seconds no matter what
         if(pros::millis() - startTime > 3000) 
         {
 			// master.print(0, 0, "timeout");
@@ -272,12 +238,12 @@ void threepin()
     chassis.waitUntilDone();
     cascade.move_relative(1250, 600);
     pros::delay(500);
-    chassis.moveToPoint(-45, -3, 1750);
+    chassis.moveToPoint(-45, -3, 1500);
     claw.extend();
     chassis.waitUntilDone(); 
-    chassis.turnToHeading(225, 1250); 
+    chassis.turnToHeading(225, 1000); 
     chassis.waitUntilDone();
-    chassis.moveToPoint(-26, 16, 3000, {.forwards=false, .maxSpeed=60});
+    chassis.moveToPoint(-26.5, 16.5, 2250, {.forwards=false, .maxSpeed=60});
     chassis.waitUntilDone();
     claw.retract();
     pros::delay(250);
@@ -287,9 +253,11 @@ void threepin()
     chassis.waitUntilDone();
     chassis.moveToPoint(-40, 24, 1000, {.forwards=false});
     chassis.waitUntilDone();   
-    cascade.move_relative(1800, 450);
+    cascade.move_relative(1800, 600);
     pros::delay(750);
     claw.extend();
+    pros::delay(250);
+
  }
 void simpleguesscheckauton()
 {
