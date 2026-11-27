@@ -10,11 +10,11 @@ pros::MotorGroup cascade ({2, -10}, pros::MotorGearset::green);
 pros::Motor toggle(9, pros::MotorGearset::green); 
 pros::Distance LeftDistance(21); //port
 pros::Distance RightDistance(20); //port
-// pros::Rotation cascadeRot(13); //port
-pros::Rotation vertodom(8); 	
+pros::Rotation cascadeRot(7); 
+pros::Rotation vertodom(-8); 	
 pros::Rotation horizodom(18); 
 pros::Imu inertial(15); 
-pros::adi::Pneumatics claw('A', false, false); //port
+pros::adi::Pneumatics claw('A', false, false); 
 
 lemlib::TrackingWheel vert_tracking_wheel(&vertodom, 2, 1.2);
 lemlib::TrackingWheel horiz_tracking_wheel(&horizodom, 2, -1.7);
@@ -24,9 +24,9 @@ lemlib::Drivetrain dt(&right_dt, &left_dt, 11.5, lemlib::Omniwheel::NEW_275, 450
 
 lemlib::ControllerSettings straight_settings//tune
 (
-    12.5, // proportional gain (kP)
+    8, // proportional gain (kP)
 	0, // integral gain (kI)
-    7.5, // derivative gain (kD)
+    40, // derivative gain (kD)
     0, // anti windup
     1, // small error range, in inches
     250, // small error range timeout, in milliseconds
@@ -67,34 +67,9 @@ lemlib::Chassis dt_chassis(dt, straight_settings, turn_settings, odometry, &thro
 
 void auton()
 {
-    double test_angles[] = {10.0, 45.0, 90.0, 180.0};
-    int num_tests = 4;
-    double total_error = 0.0;
-
-    for (int i = 0; i < num_tests; i++) {
-        // Execute the turning motion
-        chassis.turnToHeading(test_angles[i], 1750);
-        chassis.waitUntilDone();
-        
-        // Wait briefly for the robot to fully settle, then measure final heading error
-        pros::delay(500);
-        double final_heading = chassis.getPose().theta;
-        double current_error = std::abs(test_angles[i] - final_heading);
-        total_error += current_error;
-
-        // Return to 0 heading to prepare for the next test motion
-        chassis.turnToHeading(0, 1750);
-        chassis.waitUntilDone();
-        pros::delay(500);
-    }
-
-    // Step 3: Calculate average steady-state error and increase it by 50%
-    double avg_steady_state_error = total_error / num_tests;
-    double anti_windup_range = avg_steady_state_error * 1.5;
-
-    // Step 4: Print the final anti-windup range to the brain screen
-
-    master.print(0, 0, "%.2f", anti_windup_range);
+    
+    chassis.setPose(0, 0, 0);
+    chassis.moveToPoint(0, 24, 2500);
 }
 //FUNCTIONS FOR AUTON AND DRIVER 
 void initialize() 
@@ -114,48 +89,63 @@ void autonomous()
 
 void opcontrol() 
 {
-    auton();
-    //  while (true)  
-    //  {
-    //      // Arcade Drive
-    //      int leftY = -master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-    //      int rightX = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-    //      dt_chassis.arcade(leftY, rightX, false, 0.75);
+    bool lowering = false;
+     while (true)  
+     {
+         // Arcade Drive
+         int leftY = -master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+         int rightX = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+         dt_chassis.arcade(leftY, rightX, false, 0.75);
 
-    
-    //     // master.print(0, 0, "Dist: %d mm  ", distance.get());
-    //     master.print(0, 0, "%.1f", inertial.get_heading());
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
+        {
+            lowering = true; 
+        }
+        // master.print(0, 0, "Dist: %d mm  ", distance.get());
+        master.print(0, 0, "%.1f", inertial.get_heading());
 
-    //      // Cascade Manual Controls
-    //     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-    //      {
-    //          cascade.move_velocity(200);
-    //      }
-    //      else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-    //      {
-    //          cascade.move_velocity(-200);
-    //      }
-    //      else
-    //      {
-    //          cascade.move_velocity(0);
-    //      }
-    //      // Toggle Manual Controls
-    //      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-    //      {
-    //          toggle.move_velocity(200);
-    //      }
-    //      else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-    //      {
-    //          toggle.move_velocity(-200);
-    //      }
-    //      else
-    //      {
-    //         toggle.move_velocity(0);
-    //      }
-    //      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
-    //         {
-    //             claw.toggle();
-    //         }
-    //     pros::delay(10);
-    //  }
+         // Cascade Manual Controls
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+         {
+            lowering = false; 
+            cascade.move_velocity(200);
+         }
+         else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+         {
+            lowering = false;
+            cascade.move_velocity(-200);
+         }
+         else if(1)
+         {
+            if (lowering && cascadeRot.get_position() > 500)
+            {
+                cascade.move_velocity(-200);
+            }
+            else
+            {
+                cascade.move_velocity(0);
+                lowering = false;
+            }
+         }
+         // Toggle Manual Controls
+         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+         {
+             toggle.move_velocity(200);
+         }
+         else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+         {
+             toggle.move_velocity(-200);
+         }
+         else
+         {
+            toggle.move_velocity(0);
+         }
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+            {
+                claw.toggle();
+                cascade.move_relative(600, 200);
+                pros::delay(90);
+            }
+        pros::delay(10);
+     }
 }
