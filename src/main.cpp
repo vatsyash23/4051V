@@ -64,11 +64,47 @@ lemlib::ExpoDriveCurve turn_curve //tune
 
 lemlib::Chassis chassis(drivetrain, straight_settings, turn_settings, odometry, &throttle_curve, &turn_curve); 
 lemlib::Chassis dt_chassis(dt, straight_settings, turn_settings, odometry, &throttle_curve, &turn_curve);
+void moveLift(double target, int timeout = 3000)
+{
+    double kP = 0.8;
+    int startTime = pros::millis();
+
+    while (pros::millis() - startTime < timeout)
+    {
+        double position = cascadeRot.get_position() / 100.0;
+        double error = target - position;
+
+        if (std::abs(error) <= 1.0)
+        {
+            break;
+        }
+
+        double speed = error * kP;
+
+        if (speed > 200) speed = 200;
+        if (speed < -200) speed = -200;
+
+        cascade.move_velocity(speed);
+
+        pros::delay(10);
+    }
+
+    cascade.move_velocity(0);
+}
 
 void auton()
 {
-    chassis.setPose(0, 0, 0);
-    chassis.moveToPose(0, 24, 0, 10000);
+    chassis.setPose(12, 0, 0);
+    toggle.move_relative(750, 200);
+    pros::delay(600);
+    moveLift(600);
+  //pros::delay(100);
+    chassis.moveToPose(12, -12, 0, 1000, {.forwards = false});
+    chassis.moveToPose(24, -24, 60, 1000, {.forwards = false});
+    chassis.waitUntilDone();
+    moveLift(10);
+    claw.set_value(true);
+    chassis.moveToPose(24, -24, 270, 1000, {.forwards = true});
 }
 //FUNCTIONS FOR AUTON AND DRIVER 
 void initialize() 
