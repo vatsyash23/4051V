@@ -11,7 +11,7 @@ pros::Motor toggle(9, pros::MotorGearset::green);
 pros::Distance LeftDistance(21); //port
 pros::Distance RightDistance(20); //port
 pros::Rotation cascadeRot(7); 
-pros::Rotation vertodom(-8); 	
+pros::Rotation vertodom(-5); 	
 pros::Rotation horizodom(18); 
 pros::Imu inertial(15); 
 pros::adi::Pneumatics claw('A', false, false); 
@@ -24,9 +24,9 @@ lemlib::Drivetrain dt(&right_dt, &left_dt, 11.5, lemlib::Omniwheel::NEW_275, 450
 
 lemlib::ControllerSettings straight_settings//tune
 (
-    8, // proportional gain (kP)
+    15, // proportional gain (kP)
 	0, // integral gain (kI)
-    40, // derivative gain (kD)
+    3, // derivative gain (kD)
     0, // anti windup
     1, // small error range, in inches
     250, // small error range timeout, in milliseconds
@@ -67,9 +67,8 @@ lemlib::Chassis dt_chassis(dt, straight_settings, turn_settings, odometry, &thro
 
 void auton()
 {
-    
     chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 24, 2500);
+    chassis.moveToPose(0, 24, 0, 10000);
 }
 //FUNCTIONS FOR AUTON AND DRIVER 
 void initialize() 
