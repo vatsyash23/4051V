@@ -146,6 +146,20 @@ void opcontrol()
                 cascade.move_relative(600, 200);
                 pros::delay(90);
             }
+
+        //1 toggle flip
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+            {
+                toggle.move_relative(190, 200);
+                pros::delay(100);
+            }
+
+        // 2 toggle flip    
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+            {
+                toggle.move_relative(360, 200);
+                pros::delay(100);
+            }
         pros::delay(10);
      }
 }
