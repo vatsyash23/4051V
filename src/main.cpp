@@ -112,6 +112,7 @@ void initialize()
     chassis.calibrate();
     pros::delay(3000);
     cascade.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    cascadeRot.reset_position();
 }
 
 void disabled() {} 
@@ -129,7 +130,7 @@ void opcontrol()
      {
          // Arcade Drive
          int leftY = -master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-         int rightX = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
          dt_chassis.arcade(leftY, rightX, false, 0.75);
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B))
